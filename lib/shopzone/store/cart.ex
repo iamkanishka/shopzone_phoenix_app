@@ -3,7 +3,7 @@ defmodule Shopzone.Store.Cart do
   import Ecto.Changeset
 
   schema "carts" do
-    field :cart_id, Ecto.Enum, values: [:open, :onhold, :completed]
+    field :status, Ecto.Enum, values: [:open, :onhold, :completed]
     timestamps()
   end
 
