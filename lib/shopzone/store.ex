@@ -42,6 +42,10 @@ defmodule Shopzone.Store do
     end
   end
 
+  def delete_product(%Product{} = product) do
+    Repo.delete(product)
+  end
+
   def change_product(%Product{}= product, attrs \\ {}) do
      Product.changeset(product, attrs)
   end
