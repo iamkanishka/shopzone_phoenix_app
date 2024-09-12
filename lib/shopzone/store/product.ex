@@ -3,31 +3,29 @@ defmodule Shopzone.Store.Product do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-          title: String.t(),
+          name: String.t(),
           description: String.t(),
           stock: integer(),
-          amount: integer(),
+          price: integer(),
           thumbnail: String.t(),
           inserted_at: NaiveDateTime.t(),
           updated_at: NaiveDateTime.t()
         }
 
-  schema "product" do
-    field :title, :string
+  schema "products" do
+    field :name, :string
     field :description, :string
     field :stock, :integer
-    field :amount, :integer
+    field :price, :integer
     field :thumbnail, :string
-
     timestamps()
   end
 
+  @impl true
   @doc false
-  # @impl true
-  def changeset(product, attrs)  do
-      product
-      |> cast(attrs, [:title, :description, :stock, :amount, :thumbnail ])
-      |> validate_required([:title, :description, :stock, :amount, :thumbnail])
+  def changeset(product, attrs) do
+    product
+    |> cast(attrs, [:name, :description, :stock, :price, :thumnail])
+    |> validate_required([:name, :description, :stock, :price, :thumnail])
   end
-
 end

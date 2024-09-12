@@ -1,38 +1,31 @@
 defmodule ShopzoneWeb.CartLive.Show do
+  alias Shopzone.Store
   use ShopzoneWeb, :live_view
 
-  alias Shopzone.Store
-
-  @impl true
   def mount(_params, session, socket) do
     cart_items = Store.list_cart_items(session["cart_id"])
 
     total =
       cart_items
-      |> Enum.map(fn ci -> ci.product.amount * ci.quantity end)
+      |> Enum.map(fn ci -> ci.product.price * ci.qunatity end)
       |> Enum.sum()
       |> Money.new()
 
-    socket =
-      socket
-      |> assign(:cart_id, session["cart_id"])
-      |> assign(:total, total)
-      |> stream(:cart_items, cart_items)
-
-    IO.inspect(cart_items)
-
-    {:ok, socket}
+    {:ok,
+     socket
+     |> assign(:total, total)
+     |> assign(:cart_id, session["cart_id"])
+     |> stream(:cart_items, cart_items)}
   end
 
   @impl true
-  def handle_params(_params, _url, socket) do
-    {:noreply, socket}
+  def handle_params(_unsigned_params, _uri, socket) do
+   {:noreply, socket}
   end
 
   @impl true
-  def handle_event("checkout", _params, socket) do
+  def handle_event("checkout", unsigned_params, socket) do
     cart_items = Store.list_cart_items(socket.assigns.cart_id)
-
     line_items =
       Enum.map(cart_items, fn ci ->
         %{
@@ -59,9 +52,8 @@ defmodule ShopzoneWeb.CartLive.Show do
       })
 
     {:noreply, redirect(socket, external: checkout_session.url)}
+
   end
 
-  def handle_event("cancel_cart", _unsigned_params, socket) do
-    IO.inspect(:label, "cancel_cart")
-  end
+
 end

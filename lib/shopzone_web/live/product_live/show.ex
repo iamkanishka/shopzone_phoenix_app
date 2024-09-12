@@ -1,20 +1,20 @@
 defmodule ShopzoneWeb.ProductLive.Show do
-  alias Shopzone.Store
   use ShopzoneWeb, :live_view
+  alias Shopzone.Store
 
   @impl true
-  @doc false
-  def mount(_session,_params, socket) do
+  def mount(_session, _prams, socket) do
     {:ok, socket}
   end
 
+  @impl true
   def handle_params(%{"id" => id}, _uri, socket) do
-    {:ok,
+    {:noreply,
      socket
-     |> assign(:page_title, page_title(socket.assign.live_action))
+     |> assign(:page_title, get_title(socket.assigns.live_action))
      |> assign(:product, Store.get_product(id))}
   end
 
-  defp page_title(:new), do: "Add Product"
-  defp page_title(:edit), do: "Edit Product"
+  defp get_title(:edit), do: "Edit Product"
+  defp get_title(:new), do: "Add Product"
 end

@@ -3,15 +3,15 @@ defmodule Shopzone.Store.Cart do
   import Ecto.Changeset
 
   schema "carts" do
-    field :status, Ecto.Enum, values: [:open, :onhold, :completed]
-    timestamps()
+    field :status, Ecto.Enum, values: [:open, :completed, :onhold]
+   timestamps()
   end
 
+  @impl true
   @doc false
-  # @impl true
   def changeset(cart, attrs) do
     cart
-    |> cast(cart, [])
-    |> validate_required([])
+    |> cast(attrs, [:status])
+    |> validate_required([:status])
   end
 end

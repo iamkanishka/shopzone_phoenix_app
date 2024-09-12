@@ -3,26 +3,29 @@ defmodule ShopzoneWeb.ProductLive.Index do
   alias Shopzone.Store
   use ShopzoneWeb, :live_view
 
+
   @impl true
-  def mount(session, params, socket) do
+  def mount(session, _params, socket) do
+    if connected?(socket), do: Store.subscribe_product_events()
+
     {:ok,
      socket
-     |> assign(:cart_id, session[~c"cart_id"])
-     |> assign(:products, Store.list_products())}
+     |> assign(:cart_id, session["cart_id"])
+     |> stream(:products, Store.list_products())}
   end
 
   @impl true
-  def handle_params(params, _uri, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  def handle_params(unsigned_params, uri, socket) do
+    {:noreply, apply_action(socket, socket.assigns.liva_action, unsigned_params)}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
-    |> assign(:page_title, "Edit Ptroduct")
-    |> assign(:product, Store.get_product(id))
+    |> assign(:page_title, "Edit Product")
+    |> assign(:product, Store.get_product!(id))
   end
 
-  defp apply_action(socket, :new, _parmas) do
+  defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "Add Product")
     |> assign(:product, %Product{})
@@ -35,44 +38,37 @@ defmodule ShopzoneWeb.ProductLive.Index do
   end
 
   @impl true
-  @doc false
   def handle_info({ShopzoneWeb.ProductLive.FormComponent, {:saved, product}}, socket) do
     {:noreply, stream_insert(socket, :products, product)}
   end
 
   @impl true
-  @doc false
+  def handle_info({:new_product, product}, socket) do
+    {:noreply, stream_insert(socket, :products, product)}
+  end
+
+  @impl true
   def handle_info({:updated_product, product}, socket) do
     {:noreply, stream_insert(socket, :products, product)}
   end
 
-
   @impl true
-  @doc false
-  def handle_info({:created_product, product}, socket) do
-    {:noreply, stream_insert(socket, :products, product)}
-  end
-
-  @impl true
-  @doc false
- def handle_info(:clear_flash, socket) do
+  def handle_info(:clear_flash, socket) do
     {:noreply, clear_flash(socket)}
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    product = Store.get_product!(id)
-
+    product = Store.get_product(id)
     {:ok, _} = Store.delete_product(product)
     {:noreply, stream_delete(socket, :products, product)}
   end
 
-  def handle_event("add_to_cart", %{"id" => id}, socket) do
-    product = Store.get_product!(id)
-
-    Store.create_cart_item(socket.assigns.cart_id, product)
-
+  @impl true
+  def handle_event("add_item_to_cart", %{"id" => id}, socket) do
+    product = Store.get_product(id)
+    Store.add_item_to_cart(socket.assigns.cart_id, product)
     Process.send_after(self(), :clear_flash, 2500)
-  {:noreply, socket |> put_flash(:info, "Added to Cart Successfully")}
+    {:noreply, socket |> put_flash(:info, "Added Item to Cart")}
   end
 end

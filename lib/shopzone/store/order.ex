@@ -1,5 +1,4 @@
 defmodule Shopzone.Store.Order do
-
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,12 +7,13 @@ defmodule Shopzone.Store.Order do
     timestamps()
   end
 
+  @impl true
   @doc false
-  # @impl true
-  def chnageset(order, attrs) do
+  def changeset(order, attrs) do
     order
-    |> cast(attrs, [:cart_id])
-    |> validate_required([:cart_id])
+    |> cast(attrs, [])
+    |> validate_required([])
+
   end
 
 end
